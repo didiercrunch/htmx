@@ -123,6 +123,8 @@ return (function () {
             withExtensions: withExtensions,
         }
 
+        var SVG_TAG = ['g', 'circle', 'rect'];
+
         var VERBS = ['get', 'post', 'put', 'delete', 'patch'];
         var VERB_SELECTOR = VERBS.map(function(verb){
             return "[hx-" + verb + "], [data-hx-" + verb + "]"
@@ -292,6 +294,17 @@ return (function () {
             return responseNode;
         }
 
+
+        /**
+         * @param {string} resp
+         * @returns {Element}
+         */
+        function parseSVG(resp){
+            var parser = new DOMParser();
+            var responseDoc = parser.parseFromString(resp, "image/svg+xml");
+            return responseDoc.body;
+        }
+
         function aFullPageResponse(resp) {
             return /<body/.test(resp)
         }
@@ -332,7 +345,7 @@ return (function () {
                 case "style":
                     return parseHTML("<div>" + content + "</div>", 1);
                 default:
-                    return parseHTML(content, 0);
+                    return SVG_TAG.indexOf(startTag) !== -1 ? parseSVG(content) : parseHTML(content, 0);
             }
         }
 
